@@ -1,0 +1,6 @@
+@POSIntegration_HostAddress = http://localhost:5128
+
+GET {{POSIntegration_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
