@@ -13,16 +13,18 @@ namespace POSIntegration.Controllers
         private readonly IOrderRepository _orderRepository;
         private readonly OrderService _orderService;
 
+        // Constructor to initialize repository and service dependencies.
         public OrderController(IOrderRepository orderRepository, OrderService orderService)
         {
             _orderRepository = orderRepository;
             _orderService = orderService;
         }
 
+        // Creates a new order, saves it to the database, and returns the response.
         [HttpPost]
         public async Task<IActionResult> CreateOrderAsync([FromBody] OrderData orderData)
         {
-            var squareOrderResponse = await _orderService.CreateOrder(orderData);
+            var squareOrderResponse = await _orderService.CreateOrder(orderData); // Create order via Square API.
 
             var order = new Order
             {
@@ -34,11 +36,11 @@ namespace POSIntegration.Controllers
                 {
                     Name = item.Name,
                     Quantity = item.Quantity,
-                    Price = (double)item.Price 
+                    Price = (double)item.Price // Convert to double for database storage.
                 }).ToList()
             };
 
-            var createdOrder = await _orderRepository.AddOrderAsync(order);
+            var createdOrder = await _orderRepository.AddOrderAsync(order); // Save order to the database.
 
             var orderResponse = new OrderResponse
             {
@@ -51,14 +53,15 @@ namespace POSIntegration.Controllers
                 {
                     Name = item.Name,
                     Quantity = item.Quantity,
-                    UnitPrice = (double)item.Price  
+                    UnitPrice = (double)item.Price
                 }).ToList(),
-                Totals = squareOrderResponse.Totals 
+                Totals = squareOrderResponse.Totals // Include totals from Square API.
             };
 
-            return Ok(orderResponse);
+            return Ok(orderResponse); // Return response.
         }
 
+        // Retrieves an order by its ID from the database and Square API.
         [HttpGet("{orderId}")]
         public async Task<IActionResult> GetOrderByIdAsync(string orderId)
         {
@@ -69,10 +72,10 @@ namespace POSIntegration.Controllers
             }
 
             var orderFromSquare = await _orderService.GetOrderById(orderId);
-
             return Ok(orderFromSquare);
         }
 
+        // Retrieves all orders for a specific table number from the database and Square API.
         [HttpGet("table/{tableNumber}")]
         public async Task<IActionResult> GetOrdersByTableAsync(string tableNumber)
         {

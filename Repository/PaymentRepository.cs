@@ -7,20 +7,20 @@ namespace POSIntegration.Repositories
 {
     public class PaymentRepository : IPaymentRepository
     {
-        private readonly AppDbContext _context; 
+        private readonly AppDbContext _context;
 
+        // Constructor to initialize the database context.
         public PaymentRepository(AppDbContext context)
         {
             _context = context;
         }
 
-        // Method to submit a payment and save it to the database
+        // Submits a payment by adding it to the database and saving changes.
         public async Task<Payment> SubmitPaymentAsync(Payment payment)
         {
-            _context.Payments.Add(payment); 
-            await _context.SaveChangesAsync(); 
-            return payment; 
+            _context.Payments.Add(payment); // Add payment entity.
+            await _context.SaveChangesAsync(); // Persist changes.
+            return payment;
         }
     }
-
 }
