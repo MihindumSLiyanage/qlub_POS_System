@@ -36,7 +36,7 @@ namespace POSIntegration.Controllers
                 {
                     Name = item.Name,
                     Quantity = item.Quantity,
-                    Price = (double)item.Price // Convert to double for database storage.
+                    Price = (double)item.Price, // Convert to double for database storage.
                 }).ToList()
             };
 
@@ -53,7 +53,14 @@ namespace POSIntegration.Controllers
                 {
                     Name = item.Name,
                     Quantity = item.Quantity,
-                    UnitPrice = (double)item.Price
+                    UnitPrice = (double)item.Price,
+                    Modifiers = item.Modifiers.Select(modifier => new OrderItemModifierResponse
+                    {
+                        Name = modifier.Name,
+                        UnitPrice = modifier.UnitPrice,
+                        Quantity = modifier.Quantity,
+                        Amount = modifier.Amount
+                    }).ToList()
                 }).ToList(),
                 Totals = squareOrderResponse.Totals // Include totals from Square API.
             };

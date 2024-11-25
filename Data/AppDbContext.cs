@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using POSIntegration.Models;
 using POSIntegration.Models.Enitities;
 
 namespace POSIntegration.Data
@@ -10,6 +11,7 @@ namespace POSIntegration.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItem { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<OrderItemModifierResponse> Modifiers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

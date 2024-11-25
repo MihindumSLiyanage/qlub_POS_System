@@ -90,13 +90,43 @@ namespace POSIntegration.Services
         // Maps order item data to Square order line items.
         private List<OrderLineItem> MapOrderItems(List<OrderItemData> items)
         {
-            return items.Select(item => new OrderLineItem.Builder(item.Quantity.ToString())
-                .Name(item.Name) // Set item name.
-                .BasePriceMoney(new Money.Builder()
-                    .Amount((long)(item.Price * 100)) // Convert price to smallest currency unit.
-                    .Currency("USD")
-                    .Build())
-                .Build()).ToList();
+            return items.Select(item =>
+            {
+                // Create the base order line item
+                var orderLineItemBuilder = new OrderLineItem.Builder(item.Quantity.ToString())
+                    .Name(item.Name) // Set item name.
+                    .BasePriceMoney(new Money.Builder()
+                        .Amount((long)(item.Price * 100)) // Convert price to smallest currency unit.
+                        .Currency("USD")
+                        .Build());
+                
+                List<OrderLineItemModifier> modifiers = new List<OrderLineItemModifier>();
+
+                // Add modifiers to the list if they exist
+                if (item.Modifiers != null && item.Modifiers.Any())
+                {
+                    foreach (var modifier in item.Modifiers)
+                    {
+                        var modifierMoney = new Money.Builder()
+                            .Amount((long)(modifier.UnitPrice * 100)) // Convert modifier price to smallest currency unit
+                            .Currency("USD")
+                            .Build();
+
+                        var lineItemModifier = new OrderLineItemModifier.Builder()
+                            .Name(modifier.Name)
+                            .BasePriceMoney(modifierMoney)
+                            .Quantity(modifier.Quantity.ToString())
+                            .Build();
+
+                        modifiers.Add(lineItemModifier);
+                    }
+                }
+
+                // Build the final OrderLineItem with discounts and modifiers
+                return orderLineItemBuilder
+                    .Modifiers(modifiers)  
+                    .Build();
+            }).ToList();
         }
 
         // Converts Square API response to internal order response model.
@@ -107,7 +137,7 @@ namespace POSIntegration.Services
         }
 
         // Maps Square order object to internal order response model.
-        private OrderResponse MapOrderToOrderResponse(Square.Models.Order order)
+        private OrderResponse MapOrderToOrderResponse(Order order)
         {
             return new OrderResponse
             {
@@ -159,7 +189,7 @@ namespace POSIntegration.Services
         }
 
         // Maps order totals to internal response model.
-        private OrderTotalResponse MapOrderTotalsResponse(Square.Models.Order order)
+        private OrderTotalResponse MapOrderTotalsResponse(Order order)
         {
             return new OrderTotalResponse
             {
